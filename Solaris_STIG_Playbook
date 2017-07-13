@@ -1,0 +1,140 @@
+- hosts: ~(.*)solaris(.*)
+  become: yes
+  tasks:
+   - name: GEN000460, GEN000480 fix
+     lineinfile:
+       backup: yes
+       regexp: "{{ item.reg }}"
+       line: "{{ item.line }}"
+       path: /etc/default/login
+     with_items:
+       - {regexp: 'RETRIES', line: 'RETRIES=5'}
+       - {regexp: 'SLEEPTIME', line: 'SLEEPTIME=4'}
+
+   - name: GEN00460 fix
+     lineinfile:
+       backup: yes
+       regexp: 'LOCK_AFTER_RETRIES'
+       line: 'LOCK_AFTER_RETRIES=YES'
+       path: /etc/security/policy.conf
+
+   - name: GEN000920 fix
+     file:
+       backup: yes
+       path: /root
+       mode: 0700
+
+   - name: GEN001830 fix
+     file:
+      backup: yes
+      path: /etc/skel/
+      recurse: yes
+      group: root
+
+   - name: GEN002700 & GEN003740 & GEN004940 & GEN000000-SOL00100 & GEN003200 & GEN000252 & GEN002717 & GEN003252 & GEN005390 fix
+     file:
+       backup: yes
+       path: "{{ item.path }}"
+       mode: "{{ item.mode }}"
+       recurse: "{{ item.recurse }}"
+     with_items:
+       - {path: '/var/audit', mode: '0750', recurse: 'no'}
+       - {path: '/var/audit/', mode: '0640', recurse: 'yes'}
+       - {path: '/etc/inet/inetd.conf', mode: '0440', recurse: 'no'}
+       - {path: '/etc/ftpd/ftpusers', mode: '0640', recurse: 'no'}
+       - {path: '/etc/security/audit_user', mode: '0640', recurse: 'no'}
+       - {path: '/etc/cron.d/cron.deny', mode: '0600', recurse: 'no'}
+       - {path: '/etc/inet/ntp.conf', mode: '0640', recurse: 'no'}
+       - {path: '/usr/sbin/auditd', mode: '0750', recurse: 'no'}
+       - {path: '/usr/bin/audit', mode: '0750', recurse: 'no'}
+       - {path: '/usr/sbin/bsmrecord', mode: '0750', recurse: 'no'}
+       - {path: '/usr/sbin/auditreduce', mode: '0750', recurse: 'no'}
+       - {path: '/usr/sbin/praudit', mode: '0750', recurse: 'no'}
+       - {path: '/usr/sbin/auditconfig', mode: '0750', recurse: 'no'}
+       - {path: 'etc/cron.d/at.deny', mode: '0600', recurse: 'no'}
+       - {path: '/etc/syslog.conf', mode: '0640', recurse: 'no'}
+
+   - name: GEN002120 fix
+     lineinfile:
+        backup: yes
+        regexp: "{{ item.regexp }}"
+        line: "{{ item.line }}"
+        path: /etc/shells
+     with_items:
+       - {regexp: '/bin/bash', line: '/bin/bash'}
+       - {regexp: '/bin/csh', line: '/bin/csh'}
+       - {regexp: '/bin/jsh', line: '/bin/jsh'}
+       - {regexp: '/bin/ksh', line: '/bin/ksh'}
+       - {regexp: '/bin/pfcsh', line: '/bin/pfcsh'}
+       - {regexp: '/bin/pfksh', line: '/bin/pfksh'}
+       - {regexp: '/bin/pfsh', line: '/bin/pfsh'}
+       - {regexp: '/bin/sh', line: '/bin/sh'}
+       - {regexp: '/bin/tcsh', line: '/bin/tcsh'}
+       - {regexp: '/bin/zsh', line: '/bin/zsh'}
+       - {regexp: '/sbin/jsh', line: '/sbin/jsh'}
+       - {regexp: '/sbin/sh', line: '/sbin/sh'}
+       - {regexp: '/usr/bin/bash', line: '/usr/bin/bash'}
+       - {regexp: '/usr/bin/csh', line: '/usr/bin/csh'}
+       - {regexp: '/usr/bin/jsh', line: '/usr/bin/jsh'}
+       - {regexp: '/usr/bin/ksh', line: '/usr/bin/ksh'}
+       - {regexp: '/usr/bin/pfcsh', line: '/usr/bin/pfcsh'}
+       - {regexp: '/usr/bin/pfksh', line: '/usr/bin/pfksh'}
+       - {regexp: '/usr/bin/pfsh', line: '/usr/bin/pfsh'}
+       - {regexp: '/usr/bin/sh', line: '/usr/bin/sh'}
+       - {regexp: '/usr/bin/tcsh', line: '/usr/bin/tcsh'}
+       - {regexp: '/usr/bin/zsh', line: '/usr/bin/zsh'}
+
+   - name: GEN000800 & GEN000580 & GEN002100 & GEN003540 & GEN000750 fix
+     lineinfile:
+      backup: yes
+      regexp: "{{ item.regexp }}"
+      line: "{{ item.line }}"
+      path: "{{ item.path }}"
+     with_items:
+      - {regexp: 'HISTORY', line: 'HISTORY=5', path: '/etc/default/passwd'}
+      - {regexp: 'PASSLENGTH', line: 'PASSLENGTH=8', path: '/etc/default/passwd'}
+      - {regexp: 'pam_rhosts_auth.so.1', line: '', path: '/etc/pam.conf'}
+      - {regexp: 'set noexec_user_stack=', line: 'set noexec_user_stack=1', path: '/etc/system'}
+      - {regexp: 'MINDIFF', line: 'MINDIFF=4', path: '/etc/default/passwd'}
+
+   - name: GEN008700 fix
+     lineinfile:
+       backup: yes
+       regexp: 'password'
+       line: 'password --md5 `hash of password`'
+       path: /boot/grub/menu.lst
+       insertafter: 'timeout'
+
+   - name: GEN000241 fix
+     lineinfile:
+        backup: yes
+        regexp: "{{ item.regexp }}"
+        line: "{{ item.line }}"
+        path: "{{ item.path }}"
+     with_items:
+      - {regexp: 'pool', line: 'server pool iburst', path: /etc/inet/ntp.conf}
+      - {regexp: 'pool', line: 'server pool iburst', path: /etc/inet/ntp.conf}
+      - {regexp: 'pool', line: 'server pool iburst', path: /etc/inet/ntp.conf}
+      - {regexp: 'pool', line: 'server pool iburst', path: /etc/inet/ntp.conf}
+     service:
+      name: ntp4
+      state: started
+
+   - name: GEN005501 & GEN005511 & GEN005524 & GEN005525 & GEN005539 fix
+     lineinfile:
+      backup: yes
+      regexp: "{{ item.regexp }}"
+      line: "{{ item.line }}"
+      path: "{{ item.path }}"
+      insertafter: EOF
+     with_items:
+      - {regexp: 'Protocol 2', line: 'Protocol 2', path: '/etc/ssh/ssh_config'}
+      - {regexp: 'Ciphers', line: 'Ciphers aes128-ctr,aes192-ctr,aes256-ctr', path: '/etc/ssh/ssh_config'}
+      - {regexp: 'GSSAPIAuthentication no', line: 'GSSAPIAuthentication no', path: '/etc/ssh/sshd_config'}
+      - {regexp: 'GSSAPIAuthentication no', line: 'GSSAPIAuthentication no', path: '/etc/ssh/ssh_config'}
+      - {regexp: 'Compression no', line: 'Compression no', path: '/etc/ssh/sshd_config'}
+
+   - name: GEN008520 fix
+     service:
+      name: network/ipfilter
+      state: started

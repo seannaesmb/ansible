@@ -1,7 +1,7 @@
 - hosts: ~(.*)solaris(.*)
   become: yes
   tasks:
-   - name: GEN000460, GEN000480 fix
+   - name: "GEN000460, GEN000480 fix"
      lineinfile:
        backup: yes
        regexp: "{{ item.reg }}"
@@ -11,27 +11,65 @@
        - {regexp: 'RETRIES', line: 'RETRIES=5'}
        - {regexp: 'SLEEPTIME', line: 'SLEEPTIME=4'}
 
-   - name: GEN00460 fix
+   - name: "GEN00460 fix"
      lineinfile:
        backup: yes
        regexp: 'LOCK_AFTER_RETRIES'
        line: 'LOCK_AFTER_RETRIES=YES'
        path: /etc/security/policy.conf
 
-   - name: GEN000920 fix
+   - name: "GEN000920 fix"
      file:
        backup: yes
        path: /root
        mode: 0700
 
-   - name: GEN001830 fix
+   - name: "GEN002720 & GEN002740 & GEN002760 & GEN002800 & GEN002820 & GEN002825 Fix"
+     lineinfile:
+      backup: yes
+      path: /etc/security/audit_control
+      regexp: 'flags:'
+      line: 'flags:fr,-fr,+fd,-fd,am,-am,+am,+lo,-lo,+fm,-fm,as'
+   - name: "GEN002800 Fix"
+     lineinfile:
+      backup: yes
+      path: /etc/security/audit_control
+      regexp: 'naflags:'
+      line: 'naflags:lo,+lo,-lo'
+   - name: "Load new audit config after changes"
+     raw: 'auditconfig -conf'
+
+   - name: "GEN000595 Fix"
+     lineinfile:
+      backup: yes
+      path: /etc/security/policy.conf
+      regexp: "{{ item.regexp }}"
+      line: "{{ item.line }}"
+     with_items:
+      - {regexp: 'CRYPT_ALGORITHMS_DEPRECATE', line: 'CRYPT_ALGORITHMS_DEPRECATE=__unix__'}
+      - {regexp: 'CRYPT_DEFAULT', line: 'CRYPT_DEFAULT=6'}
+
+   - name: "GEN003606 fix"
+     lineinfile:
+      backup: yes
+      path: /etc/ipf/ipf.conf
+      regexp: "{{ item.regexp }}"
+      line: "{{ item.line }}"
+      insertafter: EOF
+     with_items:
+      - {regexp: 'block out log quick all with opt lsrr', line: 'block out log quick all with opt lsrr'}
+      - {regexp: 'block out log quick all with opt ssrr', line: 'block out log quick all with opt ssrr'}
+      - {regexp: 'block in log quick all with opt ssrr', line: 'block in log quick all with opt ssrr'}
+      - {regexp: 'block in log quick all with opt lsrr', line: 'block in log quick all with opt lsrr'}
+
+   - name: "GEN001830 fix"
      file:
       backup: yes
       path: /etc/skel/
       recurse: yes
       group: root
 
-   - name: GEN002700 & GEN003740 & GEN004940 & GEN000000-SOL00100 & GEN003200 & GEN000252 & GEN002717 & GEN003252 & GEN005390 fix
+   - name: "GEN002700 & GEN003740 & GEN004940 & GEN000000-SOL00100 & GEN003200 & GEN000252 & GEN002717 & GEN003252 & GEN005390 & GEN001260 fix"
      file:
        backup: yes
        path: "{{ item.path }}"
@@ -53,8 +91,10 @@
        - {path: '/usr/sbin/auditconfig', mode: '0750', recurse: 'no'}
        - {path: 'etc/cron.d/at.deny', mode: '0600', recurse: 'no'}
        - {path: '/etc/syslog.conf', mode: '0640', recurse: 'no'}
+       - {path: '/var/log', mode: '0640', recurse: 'yes'}
+       - {path: '/var/adm', mode: '0640', recurse: 'yes'}
 
-   - name: GEN002120 fix
+   - name: "GEN002120 fix"
      lineinfile:
         backup: yes
         regexp: "{{ item.regexp }}"
@@ -84,7 +124,7 @@
        - {regexp: '/usr/bin/tcsh', line: '/usr/bin/tcsh'}
        - {regexp: '/usr/bin/zsh', line: '/usr/bin/zsh'}
 
-   - name: GEN000800 & GEN000580 & GEN002100 & GEN003540 & GEN000750 fix
+   - name: "GEN000800 & GEN000580 & GEN002100 & GEN003540 & GEN000750 fix"
      lineinfile:
       backup: yes
       regexp: "{{ item.regexp }}"
@@ -97,30 +137,32 @@
       - {regexp: 'set noexec_user_stack=', line: 'set noexec_user_stack=1', path: '/etc/system'}
       - {regexp: 'MINDIFF', line: 'MINDIFF=4', path: '/etc/default/passwd'}
 
-   - name: GEN008700 fix
+   - name: "GEN008700 fix"
      lineinfile:
        backup: yes
        regexp: 'password'
-       line: 'password --md5 `hash of password`'
+       line: 'password --md5 '
        path: /boot/grub/menu.lst
        insertafter: 'timeout'
 
-   - name: GEN000241 fix
+   - name: "GEN000241 fix"
      lineinfile:
         backup: yes
         regexp: "{{ item.regexp }}"
         line: "{{ item.line }}"
         path: "{{ item.path }}"
      with_items:
-      - {regexp: 'pool', line: 'server pool iburst', path: /etc/inet/ntp.conf}
-      - {regexp: 'pool', line: 'server pool iburst', path: /etc/inet/ntp.conf}
-      - {regexp: 'pool', line: 'server pool iburst', path: /etc/inet/ntp.conf}
-      - {regexp: 'pool', line: 'server pool iburst', path: /etc/inet/ntp.conf}
+      - {regexp: 'tick..com', line: 'server tick..com iburst', path: '/etc/inet/ntp.conf'}
+      - {regexp: 'tock..com', line: 'server tick..com iburst', path: '/etc/inet/ntp.conf'}
+      - {regexp: 'tack..com', line: 'server tick..com iburst', path: '/etc/inet/ntp.conf'}
+      - {regexp: 'tuck..com', line: 'server tick..com iburst', path: '/etc/inet/ntp.conf'}
+
+   - name: "GEN000241 fix start service"
      service:
       name: ntp4
       state: started
 
-   - name: GEN005501 & GEN005511 & GEN005524 & GEN005525 & GEN005539 fix
+   - name: "GEN005501 & GEN005511 & GEN005524 & GEN005525 & GEN005539 fix"
      lineinfile:
       backup: yes
       regexp: "{{ item.regexp }}"
@@ -134,7 +176,8 @@
       - {regexp: 'GSSAPIAuthentication no', line: 'GSSAPIAuthentication no', path: '/etc/ssh/ssh_config'}
       - {regexp: 'Compression no', line: 'Compression no', path: '/etc/ssh/sshd_config'}
 
-   - name: GEN008520 fix
+   - name: "GEN008520 fix"
      service:
       name: network/ipfilter
       state: started
+

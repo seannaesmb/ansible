@@ -1,0 +1,15 @@
+- hosts: ~(.*)rhel(.*)
+  become: yes
+  tasks:
+  - name: Change deny in pam auth
+    replace:
+       dest: "/etc/pam.d/{{ item }}"
+       backup: yes
+       regexp: 'deny=3'
+       replace: 'deny=5'
+    with_items:
+     - password-auth
+     - system-auth
+#  Use this to do a replace on whole directory
+#    with_fileglob:
+#     - "/etc/pam.d/*"

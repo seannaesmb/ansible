@@ -84,12 +84,12 @@
        - {path: '/etc/cron.d/cron.deny', mode: '0600', recurse: 'no'}
        - {path: '/etc/inet/ntp.conf', mode: '0640', recurse: 'no'}
        - {path: '/usr/sbin/auditd', mode: '0750', recurse: 'no'}
-       - {path: '/usr/bin/audit', mode: '0750', recurse: 'no'}
+      # - {path: '/usr/bin/audit', mode: '0750', recurse: 'no'}
        - {path: '/usr/sbin/bsmrecord', mode: '0750', recurse: 'no'}
        - {path: '/usr/sbin/auditreduce', mode: '0750', recurse: 'no'}
        - {path: '/usr/sbin/praudit', mode: '0750', recurse: 'no'}
        - {path: '/usr/sbin/auditconfig', mode: '0750', recurse: 'no'}
-       - {path: 'etc/cron.d/at.deny', mode: '0600', recurse: 'no'}
+      # - {path: 'etc/cron.d/at.deny', mode: '0600', recurse: 'no'}
        - {path: '/etc/syslog.conf', mode: '0640', recurse: 'no'}
        - {path: '/var/log', mode: '0640', recurse: 'yes'}
        - {path: '/var/adm', mode: '0640', recurse: 'yes'}
@@ -99,6 +99,7 @@
         backup: yes
         regexp: "{{ item.regexp }}"
         line: "{{ item.line }}"
+        create: yes
         path: /etc/shells
      with_items:
        - {regexp: '/bin/bash', line: '/bin/bash'}

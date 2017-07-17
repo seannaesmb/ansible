@@ -1,0 +1,26 @@
+ - hosts: ~(.*)rhel(.*), ~(.*)solaris(.*)
+   become: yes
+   tasks:
+     - name: Copy directory contents
+       copy:
+           src: /tmp/openscap_contents/
+           dest: /opt/
+           directory_mode: yes
+       when: (ansible_os_family == "CentOS") or (ansible_os_family == "RedHat")
+
+     - name: Archive scc
+       archive:
+           path: "/tmp/SCC_4.2_solaris_i386/scc_4.2"
+           dest: /opt/scc_4.2.tgz
+       when: (ansible_os_family == "Solaris")
+       tags:
+        - 'SCCTool'
+
+     - name: Copy and unarchive scc tool
+       unarchive:
+           src: /opt/scc_4.2.tgz
+           copy: yes
+           dest: /opt/
+       when: (ansible_os_family == "Solaris")
+       tags:
+        - 'SCCTool'

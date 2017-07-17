@@ -1,0 +1,29 @@
+- hosts: ~(.*)rhel(.*) ~(.*)solaris(.*)
+  become: yes
+  tasks:
+    - name: Apply timeout fixes to sshd config
+      lineinfile:
+       backup: yes
+       path: /etc/ssh/sshd_config
+       regexp: "{{ item.regexp }}"
+       line: "{{ item.line }}"
+       insertafter: EOF
+      with_items:
+       - {regexp: 'ClientAliveCountMax', line: 'ClientAliveCountMax 0'}
+       - {regexp: 'ClientAliveInterval', line: 'ClientAliveInterval 99999'}
+
+    - name: Reload ssh service
+      service:
+       name: ssh
+       state: restarted
+      when: (ansible_os_family == "Solaris")
+      tags:
+       - solaris
+
+    - name: Reload ssh service
+      service:
+       name: sshd
+       state: restarted
+      when: (ansible_os_family == "CentOS") or (ansible_os_family == "RedHat")
+      tags:
+       - rhel
